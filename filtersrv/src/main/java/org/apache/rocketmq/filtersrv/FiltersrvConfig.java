@@ -36,7 +36,7 @@ public class FiltersrvConfig {
     private int zipCompressLevel = 5;
 
     /**
-     * 是否允许client上传过滤类
+     * 是否允许client上传过 滤类
      */
     private boolean clientUploadFilterClassEnable = true;
 
