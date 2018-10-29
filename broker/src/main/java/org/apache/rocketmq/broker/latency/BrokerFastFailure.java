@@ -57,6 +57,19 @@ public class BrokerFastFailure {
         }, 1000, 10, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * bobo sign
+     * 摘自 http://jm.taobao.org/2017/01/26/20170126/
+     *
+     * RocketMQ中并没有内置Guava、Netty等拆箱即用的速度流控组件。
+     * 而是通过借鉴排队理论，对其中的慢请求进行容错处理。
+     * 这里的慢请求是指排队等待时间以及服务时间超过某个阈值的请求(此处的cleanExpiredRequest及时对于等待时间超出阈值的请求进行处理)。
+     * 对于离线应用场景，容错处理就是利用滑动窗口机制，通过缓慢缩小窗口的手段，来减缓从服务端拉的频率以及消息大小，降低对服务端的影响。
+     * 而对于那些高频交易，数据复制场景，则采取了快速失败策略，
+     * 既能预防应用连锁的资源耗尽而引发的应用雪崩，又能有效降低服务端压力，为端到端低延迟带来可靠保障。
+     *
+     */
+
     private void cleanExpiredRequest() {
         while (this.brokerController.getMessageStore().isOSPageCacheBusy()) {
             try {
@@ -78,6 +91,7 @@ public class BrokerFastFailure {
         while (true) {
             try {
                 if (!this.brokerController.getSendThreadPoolQueue().isEmpty()) {
+                    //获取queue中的队列的值
                     final Runnable runnable = this.brokerController.getSendThreadPoolQueue().peek();
                     if (null == runnable) {
                         break;
