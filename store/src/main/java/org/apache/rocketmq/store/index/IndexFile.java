@@ -93,6 +93,7 @@ public class IndexFile {
         if (this.indexHeader.getIndexCount() < this.indexNum) {
             int keyHash = indexKeyHashMethod(key);
             int slotPos = keyHash % this.hashSlotNum;
+            //hashsolt的位置
             int absSlotPos = IndexHeader.INDEX_HEADER_SIZE + slotPos * hashSlotSize;
 
             FileLock fileLock = null;
@@ -101,6 +102,12 @@ public class IndexFile {
 
                 // fileLock = this.fileChannel.lock(absSlotPos, hashSlotSize,
                 // false);
+
+                //
+                //hash冲突的解决办法
+                //      每次soltTable中存储index的值 如果下次hash时发生冲突
+                //      则取出该值放入  next index offset中 这样下次获取时获取到该 index值
+                //      便可取到最后一个索引位置(其中就包含了上次的index值)
                 int slotValue = this.mappedByteBuffer.getInt(absSlotPos);
                 if (slotValue <= invalidIndex || slotValue > this.indexHeader.getIndexCount()) {
                     slotValue = invalidIndex;
